@@ -1,7 +1,7 @@
 import PyPDF2
 from g4f.client import Client
 from gtts import gTTS
-from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips
+from moviepy import ImageClip, AudioFileClip, concatenate_videoclips
 from PIL import Image
 import os
 import requests
@@ -25,15 +25,15 @@ def summarize_text(text):
         for i in text:
             client = Client()
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": f"remove every which is not related to context and Summarize the following text: {i}"}]
+                model="gpt-4",
+                messages=[{"role": "user", "content": f"remove every which is not related to context and Summarize the following text: {i}"}],
+                web_search =False
             )
             line_summary = response.choices[0].message.content
             summary += line_summary + "\n"
         return summary
     except Exception as e:
         print(f"Error occurred while summarizing text: {e}")
-
 
 def text_to_speech(text, audio_path):
     try:
@@ -74,8 +74,8 @@ def generate_images(url):
     x=0
     try:
         for i in url:
-            download_image(i,r"C:\Users\adity\OneDrive\Desktop\project\image\image"+str(x)+".jpg")
-            image_paths.append(r"C:\Users\adity\OneDrive\Desktop\project\image\image"+str(x)+".jpg")
+            download_image(i,os.path.join(project_dir, "image"+str(x)+".jpg"))
+            image_paths.append(os.path.join(project_dir, "image"+str(x)+".jpg"))
             x+=1
     except Exception as e:
         print(f"Error occurred while downloading images: {e}")
@@ -87,7 +87,7 @@ def create_video_with_audio(image_paths, audio_path, output_path):
         image_clips = []
         duration_per_image = audio_clip.duration / len(image_paths)
         for img_path in image_paths:
-            img = ImageClip(img_path).set_duration(duration_per_image)
+            img = ImageClip(img_path).with_duration(duration_per_image)
             image_clips.append(img)
         video = concatenate_videoclips(image_clips, method="compose")
         video = video.set_audio(audio_clip)
@@ -100,19 +100,21 @@ def main(pdf_path, output_video_path):
     print("Extracted text from PDF")
     summary = summarize_text(extracted_text)
     print("Summarized text")
-    audio_path = r"C:\Users\adity\OneDrive\Desktop\project\audio\audio.mp3"
+    audio_path = os.path.join(project_dir, "audio", "audio.mp3")
     text_to_speech(summary, audio_path)
     print("mp3 file created")
     url=generate_images_url(summary)
     print("Generated image URLs")
     image_paths = generate_images(url)
-    print("downloded images")
+    print("downloaded images")
     create_video_with_audio(image_paths, audio_path, output_video_path)
     print("Video created")
     os.remove(audio_path)
     for img_path in image_paths:
         os.remove(img_path)
 
-pdf_path = r"C:\Users\adity\OneDrive\Desktop\project\pdf\lefl112.pdf"
-output_video_path = r"C:\Users\adity\OneDrive\Desktop\project\video pool\video1.mp4"
+pdf_path = r"D:\coding\projects\text to mp4\text-to-video-generator\going places.pdf"
+project_dir = r"D:\coding\projects\text to mp4\text-to-video-generator"
+output_video_path = os.path.join(project_dir, "video1.mp4")
 main(pdf_path, output_video_path)
+print(f"the video is in {output_video_path}")

@@ -38,14 +38,10 @@ project/
 ├── code/
 │   ├── text to video generator.py
 │   └── requirements.txt
-├── pdf/
 │   └── (your PDF files)
-├── image/
 │   └── (temporary images will be stored here)
-├── audio/
 │   └── (temporary audio will be stored here)
-└── video pool/
-    └── (output videos will be stored here)
+|   └── (output videos will be stored here)
 ```
 
 ## Usage
@@ -53,7 +49,7 @@ project/
 1. Place your PDF file in the `pdf` directory
 2. Update the file paths in the script if necessary:
    - `pdf_path`: Path to your input PDF file
-   - `output_video_path`: Path where you want to save the output video
+   - `project_dir`: Path where you have the project
 
 3. Run the script:
    ```
